@@ -1,6 +1,12 @@
 # Untitled
 Tool that automates the simultaneous synchronization of tutorials and commits
 
+
+|branch         | status                                                                      |
+|:-------------:|:---------------------------------------------------------------------------:|
+|master         |![master build](https://travis-ci.org/ECSE456-G29/Untitled.svg?branch=master)|
+|dev            |![dev build](https://travis-ci.org/ECSE456-G29/Untitled.svg?branch=dev)      |
+
 ## Build
 To build the project run:
 ```sh
