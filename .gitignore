@@ -31,3 +31,4 @@ dest/
 .classpath
 .project
 .settings/
+/bin/
