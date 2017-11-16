@@ -20,6 +20,12 @@ $ ./gradlew test
 ```
 You can then view the results in HTML format at `build/reports/tests/test/index.html`
 
+To run the clean code linter:
+```sh
+$ ./gradlew check
+```
+You can then view the results in HTML format at `build/reports/checkstyle/`
+
 ## Run
 To run the main application:
 ```sh
