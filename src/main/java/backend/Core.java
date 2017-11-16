@@ -1,6 +1,10 @@
 package backend;
 
+import database.DatabaseException;
+import database.FlatFileDb;
+import database.IDatabase;
 import java.io.IOException;
+import org.eclipse.jgit.api.errors.GitAPIException;
 
 public class Core {
   private Repo repo;
@@ -11,8 +15,7 @@ public class Core {
    * Constructor for the backend core.
    * 
    * @param repo wrapper for interacting with git repository
-   * @param db database for storing relationships between commits and tutorial
-   *        steps
+   * @param db database for storing relationships between commits and tutorial steps
    */
   public Core(Repo repo, IDatabase db) {
     this.step = 0;
@@ -21,8 +24,7 @@ public class Core {
   }
 
   /**
-   * Initializes the core backend including the git repository and database for
-   * storing steps.
+   * Initializes the core backend including the git repository and database for storing steps.
    * 
    * @param path location of project
    * @return backend core for managing the project
@@ -44,12 +46,15 @@ public class Core {
     String path = System.getProperty("user.dir");
     return initCore(path);
   }
-  
+
   /**
-   * commits all current changes to active tutorial step. Changes are added as
-   * a commit and the hash is stored in the database.
+   * commits all current changes to active tutorial step. Changes are added as a commit and the hash
+   * is stored in the database.
+   *
+   * @throws GitAPIException issues with git
+   * @throws DatabaseException database processing issues
    */
-  public void updateStep() {
+  public void updateStep() throws GitAPIException, DatabaseException {
     String hash = this.repo.commitAll();
     this.db.addSha(this.step, hash);
   }

@@ -1,4 +1,4 @@
-package backend;
+package database;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,13 +25,13 @@ public class FlatFileDb implements IDatabase {
   }
 
   @Override
-  public void addSha(int step, String sha) {
+  public void addSha(int step, String sha) throws DatabaseException {
     File f = new File(this.dbPath, String.valueOf(step));
     try {
       f.createNewFile();
       Files.write(f.toPath(), sha.getBytes(), StandardOpenOption.APPEND);
     } catch (IOException e) {
-      System.out.println("Error writing to file");
+      throw new DatabaseException("Failed writing to database");
     }
   }
 

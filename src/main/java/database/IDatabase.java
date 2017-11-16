@@ -1,4 +1,4 @@
-package backend;
+package database;
 
 public interface IDatabase {
   /**
@@ -6,6 +6,7 @@ public interface IDatabase {
    * 
    * @param step the step the record should be added to
    * @param sha the SHA256 hash of the corresponding commit
+   * @throws DatabaseException issues processing the database
    */
-  public void addSha(int step, String sha);
+  public void addSha(int step, String sha) throws DatabaseException;
 }
