@@ -26,24 +26,20 @@ $ ./gradlew check
 ```
 You can then view the results in HTML format at `build/reports/checkstyle/`
 
-## Distribute
-To build a .jar file with dependencies:
+## Installation
+To create distributions run:
 ```sh
-$ ./gradlew fatJar
+$ ./gradlew installDist
 ```
 
-The resulting jar will then be available at build/libs/G2Tutorial-all.jar
-
-## Run
-To run the main application:
+Then to install:
 ```sh
-$ ./gradlew run
+$ tar -xvf build/distributions/G2Tutorial.tar
+$ chmod +x G2Tutorial/bin/G2Tutorial
+$ ln -sf `pwd`/G2Tutorial/bin/G2Tutorial /usr/local/bin/g2t
 ```
 
-To run using the jar:
-```sh
-$ java -jar build/libs/G2Tutorial-all.jar
-```
+G2Tutorial is then available anywhere as the command `g2t`!
 
 # Contributing
 1. New work should be commited to a new branch
