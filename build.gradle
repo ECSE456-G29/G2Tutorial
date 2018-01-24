@@ -9,6 +9,7 @@
 // Apply the java plugin to add support for Java
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'idea'
 
 // Apply the application plugin to add support for building an application
 apply plugin: 'application'
@@ -33,6 +34,9 @@ dependencies {
     compile 'com.google.guava:guava:22.0'
     compile 'org.eclipse.jgit:org.eclipse.jgit:4.9.0.201710071750-r'
 
+    // Commons CLI, for command line parsing
+    compile 'commons-cli:commons-cli:1.4'
+
     // Use JUnit test framework
     testCompile 'junit:junit:4.12'
 }
@@ -43,7 +47,7 @@ mainClassName = 'App'
 // Creates a jar with all included dependencies
 task fatJar(type: Jar) {
 	manifest {
-        attributes 'Implementation-Title': 'Untitled all-in-one jar',
+        attributes 'Implementation-Title': 'G2Tutorial all-in-one jar',
             'Implementation-Version': '0.1.0',
             'Main-Class': 'App'
     }
