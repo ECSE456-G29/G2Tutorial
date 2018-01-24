@@ -38,3 +38,6 @@ dest/
 *.iml
 *.iws
 *.ipr
+
+# Vim
+*.swp
