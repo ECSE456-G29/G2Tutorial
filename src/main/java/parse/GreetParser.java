@@ -40,9 +40,9 @@ public class GreetParser {
         help();
       }
 
-      String name = null;
       if (cmd.hasOption("n")) {
-        name = cmd.getOptionValue("n");
+        String name = cmd.getOptionValue("n");
+        System.out.println("Hello, " + name);
       } else {
         System.out.println("Hello, World");
       }
