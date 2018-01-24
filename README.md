@@ -1,4 +1,4 @@
-# Untitled
+# G2Tutorial
 Tool that automates the simultaneous synchronization of tutorials and commits
 
 
@@ -20,10 +20,23 @@ $ ./gradlew test
 ```
 You can then view the results in HTML format at `build/reports/tests/test/index.html`
 
+## Distribute
+To build a .jar file with dependencies:
+```sh
+$ ./gradlew fatJar
+```
+
+The resulting jar will then be available at build/libs/G2Tutorial-all.jar
+
 ## Run
 To run the main application:
 ```sh
 $ ./gradlew run
+```
+
+To run using the jar:
+```sh
+$ java -jar build/libs/G2Tutorial-all.jar
 ```
 
 # Contributing
