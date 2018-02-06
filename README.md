@@ -34,9 +34,7 @@ $ ./gradlew installDist
 
 Then to install:
 ```sh
-$ tar -xvf build/distributions/G2Tutorial.tar
-$ chmod +x G2Tutorial/bin/G2Tutorial
-$ ln -sf `pwd`/G2Tutorial/bin/G2Tutorial /usr/local/bin/g2t
+$ ln -sf `pwd`/build/install/G2Tutorial/bin/G2Tutorial /usr/local/bin/g2t
 ```
 
 G2Tutorial is then available anywhere as the command `g2t`!
