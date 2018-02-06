@@ -1,6 +1,7 @@
 import backend.Core;
 import java.io.IOException;
 import parse.GreetParser;
+import parse.StepParser;
 
 public class App {
   public String getGreeting() {
@@ -31,6 +32,17 @@ public class App {
         e.printStackTrace();
       }
       System.exit(0);
+    } else if (args[0].equals("step")) {
+      // Commits the current changes as a step and starts a new step
+      Core c = null;
+      try {
+        c = new Core();
+      } catch (IOException e) {
+        System.err.println("g2t is not initialized");
+        e.printStackTrace();
+      }
+      StepParser p = new StepParser(args, c);
+      p.parse();
     } else {
       System.out.println("Available commands:\n"
           + "\tgreet, init");

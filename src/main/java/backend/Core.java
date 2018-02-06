@@ -1,10 +1,12 @@
 package backend;
 
 import java.io.IOException;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.NoHeadException;
+import org.eclipse.jgit.lib.Ref;
 
 public class Core {
   private Repo repo;
-  private int step;
 
   /**
    * Constructor for the backend core.
@@ -12,8 +14,14 @@ public class Core {
    * @param repo wrapper for interacting with git repository
    */
   public Core(Repo repo) {
-    this.step = 0;
     this.repo = repo;
+  }
+
+  /**
+   * Constructor for the backend core which fetches an existing repo.
+   */
+  public Core() throws IOException {
+    this.repo = Repo.getRepo();
   }
 
   /**
@@ -37,5 +45,27 @@ public class Core {
   public static Core initCore() throws IOException {
     String path = System.getProperty("user.dir");
     return initCore(path);
+  }
+
+  /**
+   * Returns the current step id as a String.
+   *
+   * @return the current step
+   */
+  public String currentStep() {
+    Ref t;
+    try {
+      t = repo.getLastTag();
+    } catch (NoHeadException e) {
+      return "0";
+    } catch (GitAPIException e) {
+      throw new RuntimeException("Invalid use of the API", e);
+    }
+
+    if (t == null) {
+      return "0";
+    }
+
+    return t.getName();
   }
 }
