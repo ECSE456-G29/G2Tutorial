@@ -20,24 +20,24 @@ $ ./gradlew test
 ```
 You can then view the results in HTML format at `build/reports/tests/test/index.html`
 
-## Distribute
-To build a .jar file with dependencies:
+To run the clean code linter:
 ```sh
-$ ./gradlew fatJar
+$ ./gradlew check
+```
+You can then view the results in HTML format at `build/reports/checkstyle/`
+
+## Installation
+To create distributions run:
+```sh
+$ ./gradlew installDist
 ```
 
-The resulting jar will then be available at build/libs/G2Tutorial-all.jar
-
-## Run
-To run the main application:
+Then to install:
 ```sh
-$ ./gradlew run
+$ ln -sf `pwd`/build/install/G2Tutorial/bin/G2Tutorial /usr/local/bin/g2t
 ```
 
-To run using the jar:
-```sh
-$ java -jar build/libs/G2Tutorial-all.jar
-```
+G2Tutorial is then available anywhere as the command `g2t`!
 
 # Contributing
 1. New work should be commited to a new branch
