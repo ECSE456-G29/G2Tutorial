@@ -37,3 +37,7 @@ dest/
 .idea/
 *.iml
 *.iws
+*.ipr
+
+# Vim
+*.swp
