@@ -45,7 +45,7 @@ public class App {
       p.parse();
     } else {
       System.out.println("Available commands:\n"
-          + "\tgreet, init");
+          + "\tgreet, init, step");
       System.exit(1);
     }
   }
