@@ -25,13 +25,13 @@ public class Repo {
    * @return SHA256 hash of the commit
    * @throws GitAPIException git issues
    */
-  public String commitAll() {
+  public String commitAll(String message) {
     RevCommit commit = null;
     try {
       this.git.add()
         .addFilepattern(".")
         .call();
-      commit = this.git.commit().call();
+      commit = this.git.commit().setMessage(message).call();
     } catch (NoFilepatternException e) {
       // Should never happen because "." is given as default
       throw new NullPointerException();
@@ -62,6 +62,18 @@ public class Repo {
       return null;
     }
     return tags.get(tags.size() - 1);
+  }
+
+  /**
+   * Tags the latest commit.
+   */
+  public void tagCommit(String tag) {
+    try {
+      git.tag().setName(tag).call();
+    } catch (GitAPIException e) {
+      // TODO: handle git Exceptions
+      throw new RuntimeException(e);
+    }
   }
 
   /**

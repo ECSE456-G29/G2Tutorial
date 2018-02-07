@@ -25,6 +25,8 @@ public class StepParser {
 
     options.addOption("h", "help", false, "show help.");
     options.addOption("a", "add", false,"Add a step.");
+    options.addOption("m", "message", true,
+        "Commit message to use when adding steps.");
   }
 
   /**
@@ -46,8 +48,14 @@ public class StepParser {
 
       String step = core.currentStep();
       if (cmd.hasOption("a")) {
-        System.out.println("Finished step " + step);
-        // TODO: implement adding a step
+        String message = null;
+        if (cmd.hasOption("m")) {
+            message = cmd.getOptionValue("m");
+        }
+
+        String nextStep = core.addStep(message);
+        System.out.println(String.format("Finished step: %s. Starting step: %s", step, nextStep));
+
       } else {
         System.out.println("Current step: " + step);
       }

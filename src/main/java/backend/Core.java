@@ -69,4 +69,19 @@ public class Core {
 
     throw new IllegalStateException("Tag didn't match proper format");
   }
+
+  /**
+   * Adds the current changes as a new step.
+   *
+   * @return the step id just added
+   */
+  public String addStep(String message) {
+    int stepTag = Integer.parseInt(currentStep()) + 1;
+    if (message == null) {
+      message = String.format("Step %s", stepTag);
+    }
+    repo.commitAll(message);
+    repo.tagCommit(Integer.toString(stepTag));
+    return Integer.toString(stepTag);
+  }
 }
