@@ -50,7 +50,7 @@ public class StepParser {
       if (cmd.hasOption("a")) {
         String message = null;
         if (cmd.hasOption("m")) {
-            message = cmd.getOptionValue("m");
+          message = cmd.getOptionValue("m");
         }
 
         String nextStep = core.addStep(message);

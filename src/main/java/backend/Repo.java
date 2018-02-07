@@ -2,7 +2,6 @@ package backend;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -10,7 +9,6 @@ import org.eclipse.jgit.api.errors.NoFilepatternException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -54,8 +52,8 @@ public class Repo {
   public String getLastTag() {
     try {
       Iterable<RevCommit> commits = git.log().call();
-      for(RevCommit commit : commits) {
-        Map<ObjectId,String> names = git.nameRev().add(commit).addPrefix( "refs/tags/" ).call();
+      for (RevCommit commit : commits) {
+        Map<ObjectId,String> names = git.nameRev().add(commit).addPrefix("refs/tags/").call();
         String tag = names.get(commit);
         if (tag != null) {
           return tag;
@@ -63,7 +61,7 @@ public class Repo {
       }
     } catch (NoHeadException e) {
       return null;
-    } catch(GitAPIException e) {
+    } catch (GitAPIException e) {
       // TODO: handle other git Exceptions
       throw new RuntimeException(e);
     } catch (MissingObjectException e) {
