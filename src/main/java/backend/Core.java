@@ -55,19 +55,11 @@ public class Core {
    * @return the current step
    */
   public String currentStep() {
-    Ref t = repo.getLastTag();
+    String t = repo.getLastTag();
     if (t == null) {
       return "0";
     }
-
-    // getName returns tags of the form "/refs/tags/1"
-    Pattern p = Pattern.compile("tags/(.*?)$");
-    Matcher matcher = p.matcher(t.getName());
-    if (matcher.find()) {
-      return matcher.group(1);
-    }
-
-    throw new IllegalStateException("Tag didn't match proper format");
+    return t;
   }
 
   /**
