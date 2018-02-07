@@ -1,6 +1,8 @@
 package backend;
 
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.lib.Ref;
@@ -66,6 +68,13 @@ public class Core {
       return "0";
     }
 
-    return t.getName();
+    // getName returns tags of the form "/refs/tags/1"
+    Pattern p = Pattern.compile("tags/(.*?)$");
+    Matcher matcher = p.matcher(t.getName());
+    if (matcher.find()) {
+      return matcher.group(1);
+    }
+
+    throw new IllegalStateException("Tag didn't match proper format");
   }
 }
