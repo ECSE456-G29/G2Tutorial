@@ -6,6 +6,7 @@ import java.util.List;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoFilepatternException;
+import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -24,16 +25,20 @@ public class Repo {
    * @return SHA256 hash of the commit
    * @throws GitAPIException git issues
    */
-  public String commitAll() throws GitAPIException {
+  public String commitAll() {
+    RevCommit commit = null;
     try {
       this.git.add()
         .addFilepattern(".")
         .call();
+      commit = this.git.commit().call();
     } catch (NoFilepatternException e) {
       // Should never happen because "." is given as default
       throw new NullPointerException();
+    } catch (GitAPIException e) {
+      // TODO: handle git Exceptions
+      throw new RuntimeException(e);
     }
-    RevCommit commit = this.git.commit().call();
     return commit.getId().name();
   }
 
@@ -43,8 +48,16 @@ public class Repo {
    * @return latest tag from the current head or null if no tag exist
    * @throws GitAPIException git issues
    */
-  public Ref getLastTag() throws GitAPIException {
-    List<Ref> tags = git.tagList().call();
+  public Ref getLastTag() {
+    List<Ref> tags = null;
+    try {
+      tags = git.tagList().call();
+    } catch (NoHeadException e) {
+      return null;
+    } catch(GitAPIException e) {
+      // TODO: handle other git Exceptions
+      throw new RuntimeException(e);
+    }
     if (tags.isEmpty()) {
       return null;
     }

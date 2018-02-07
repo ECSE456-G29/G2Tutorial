@@ -55,15 +55,7 @@ public class Core {
    * @return the current step
    */
   public String currentStep() {
-    Ref t;
-    try {
-      t = repo.getLastTag();
-    } catch (NoHeadException e) {
-      return "0";
-    } catch (GitAPIException e) {
-      throw new RuntimeException("Invalid use of the API", e);
-    }
-
+    Ref t = repo.getLastTag();
     if (t == null) {
       return "0";
     }
