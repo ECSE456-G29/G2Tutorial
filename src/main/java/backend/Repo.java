@@ -2,11 +2,13 @@ package backend;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.util.Map;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoFilepatternException;
-import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.api.errors.NoHeadException;
+import org.eclipse.jgit.errors.MissingObjectException;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -24,16 +26,20 @@ public class Repo {
    * @return SHA256 hash of the commit
    * @throws GitAPIException git issues
    */
-  public String commitAll() throws GitAPIException {
+  public String commitAll(String message) {
+    RevCommit commit = null;
     try {
       this.git.add()
         .addFilepattern(".")
         .call();
+      commit = this.git.commit().setMessage(message).call();
     } catch (NoFilepatternException e) {
       // Should never happen because "." is given as default
       throw new NullPointerException();
+    } catch (GitAPIException e) {
+      // TODO: handle git Exceptions
+      throw new RuntimeException(e);
     }
-    RevCommit commit = this.git.commit().call();
     return commit.getId().name();
   }
 
@@ -43,12 +49,37 @@ public class Repo {
    * @return latest tag from the current head or null if no tag exist
    * @throws GitAPIException git issues
    */
-  public Ref getLastTag() throws GitAPIException {
-    List<Ref> tags = git.tagList().call();
-    if (tags.isEmpty()) {
+  public String getLastTag() {
+    try {
+      Iterable<RevCommit> commits = git.log().call();
+      for (RevCommit commit : commits) {
+        Map<ObjectId,String> names = git.nameRev().add(commit).addPrefix("refs/tags/").call();
+        String tag = names.get(commit);
+        if (tag != null) {
+          return tag;
+        }
+      }
+    } catch (NoHeadException e) {
       return null;
+    } catch (GitAPIException e) {
+      // TODO: handle other git Exceptions
+      throw new RuntimeException(e);
+    } catch (MissingObjectException e) {
+      throw new RuntimeException("The commit was missing. We should never get here!");
     }
-    return tags.get(tags.size() - 1);
+    return null;
+  }
+
+  /**
+   * Tags the latest commit.
+   */
+  public void tagCommit(String tag) {
+    try {
+      git.tag().setName(tag).call();
+    } catch (GitAPIException e) {
+      // TODO: handle git Exceptions
+      throw new RuntimeException(e);
+    }
   }
 
   /**

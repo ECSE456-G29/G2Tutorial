@@ -1,9 +1,6 @@
 package backend;
 
 import java.io.IOException;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.NoHeadException;
-import org.eclipse.jgit.lib.Ref;
 
 public class Core {
   private Repo repo;
@@ -53,19 +50,25 @@ public class Core {
    * @return the current step
    */
   public String currentStep() {
-    Ref t;
-    try {
-      t = repo.getLastTag();
-    } catch (NoHeadException e) {
-      return "0";
-    } catch (GitAPIException e) {
-      throw new RuntimeException("Invalid use of the API", e);
-    }
-
+    String t = repo.getLastTag();
     if (t == null) {
       return "0";
     }
+    return t;
+  }
 
-    return t.getName();
+  /**
+   * Adds the current changes as a new step.
+   *
+   * @return the step id just added
+   */
+  public String addStep(String message) {
+    int stepTag = Integer.parseInt(currentStep()) + 1;
+    if (message == null) {
+      message = String.format("Step %s", stepTag);
+    }
+    repo.commitAll(message);
+    repo.tagCommit(Integer.toString(stepTag));
+    return Integer.toString(stepTag);
   }
 }

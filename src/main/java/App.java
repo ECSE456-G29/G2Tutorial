@@ -15,7 +15,7 @@ public class App {
    */
   public static void main(String[] args) {
     if (args.length < 1) {
-      System.out.println("Available commands:\n\tgreet");
+      System.out.println("Available commands:\n\tgreet, init, step");
       System.exit(1);
     }
 
