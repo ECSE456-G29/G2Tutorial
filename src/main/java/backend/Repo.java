@@ -2,6 +2,7 @@ package backend;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.*;
 import java.util.Map;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -11,7 +12,12 @@ import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevObject;
+import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 
 public class Repo {
   private Git git;
@@ -107,5 +113,75 @@ public class Repo {
     repo = repositoryBuilder.findGitDir().build();
     Git git = new Git(repo);
     return new Repo(git);
+  }
+
+  /**
+    public Set <String> diffSinceTag(String tagName)
+   gets the set of filenames that were changed since the commit tagged with tagName
+
+   Input:
+   tagName: get diff since this name
+
+   Output:
+   set of filenames that have been changed since the tagged commit
+
+   */
+
+  public List<DiffEntry> diffSinceTag(String tagName) throws IOException, GitAPIException {
+
+
+   // Set<String> fileNames = new HashSet<>();
+    List<DiffEntry> fileNames ;
+
+    FileRepositoryBuilder builder = new FileRepositoryBuilder();
+    Repository repository =  builder.readEnvironment() // scan environment GIT_* variables
+            .findGitDir() // scan up the file system tree
+            .build();
+
+      // The {tree} will return the underlying tree-id instead of the commit-id itself!
+      // For a description of what the carets do see e.g. http://www.paulboxley.com/blog/2011/06/git-caret-and-tilde
+      // This means we are selecting the parent of the parent of the parent of the parent of current HEAD and
+      // take the tree-ish of it
+
+      ObjectId oldHead;
+
+      if(tagName != ""){ //if call the function with a specific tag, get the objectID
+
+         oldHead = RevTag.fromString(tagName);
+
+        // oldHead = repository.resolve("HEAD^^^^{tag}");
+
+      }
+      else {  //if call function just to have latest commit changes
+        oldHead = repository.resolve("HEAD^^^^{tree}");
+        }
+
+      ObjectId head = repository.resolve("HEAD^{tree}");
+
+      System.out.println("Printing diff between tree: " + oldHead + " and " + head);
+
+      // prepare the two iterators to compute the diff between
+      try (ObjectReader reader = repository.newObjectReader()) {
+        CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
+        oldTreeIter.reset(reader, oldHead);
+        CanonicalTreeParser newTreeIter = new CanonicalTreeParser();
+        newTreeIter.reset(reader, head);
+
+        // finally get the list of changed files
+        try (Git git = new Git(repository)) {
+          List<DiffEntry> diffs= git.diff()
+                  .setNewTree(newTreeIter)
+                  .setOldTree(oldTreeIter)
+                  .call();
+          for (DiffEntry entry : diffs) {
+            System.out.println("Entry: " + entry);
+
+          }
+          fileNames = diffs;
+        }
+      }
+
+
+    return fileNames;
   }
 }
