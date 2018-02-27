@@ -127,7 +127,7 @@ public class Repo {
 
    */
 
-  public List<DiffEntry> diffSinceTag(String tagName) throws IOException, GitAPIException {
+  public static List<DiffEntry> diffSinceTag(String tagName) throws IOException, GitAPIException {
 
 
    // Set<String> fileNames = new HashSet<>();
@@ -140,7 +140,7 @@ public class Repo {
 
       // The {tree} will return the underlying tree-id instead of the commit-id itself!
       // For a description of what the carets do see e.g. http://www.paulboxley.com/blog/2011/06/git-caret-and-tilde
-      // This means we are selecting the parent of the parent of the parent of the parent of current HEAD and
+      // This means we are selecting the parent (#(Number of "^") -1 ) of current HEAD and
       // take the tree-ish of it
 
       ObjectId oldHead;
@@ -149,11 +149,11 @@ public class Repo {
 
          oldHead = RevTag.fromString(tagName);
 
-        // oldHead = repository.resolve("HEAD^^^^{tag}");
+        // oldHead = repository.resolve("HEAD^^{tag}");
 
       }
       else {  //if call function just to have latest commit changes
-        oldHead = repository.resolve("HEAD^^^^{tree}");
+        oldHead = repository.resolve("HEAD^^{tree}");
         }
 
       ObjectId head = repository.resolve("HEAD^{tree}");
@@ -162,16 +162,18 @@ public class Repo {
 
       // prepare the two iterators to compute the diff between
       try (ObjectReader reader = repository.newObjectReader()) {
-        CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
-        oldTreeIter.reset(reader, oldHead);
-        CanonicalTreeParser newTreeIter = new CanonicalTreeParser();
-        newTreeIter.reset(reader, head);
+        //For the oldTree
+        CanonicalTreeParser oldTreeIteration = new CanonicalTreeParser();
+        oldTreeIteration.reset(reader, oldHead);
+        //For the head Tree
+        CanonicalTreeParser newTreeIteration = new CanonicalTreeParser();
+        newTreeIteration.reset(reader, head);
 
         // finally get the list of changed files
         try (Git git = new Git(repository)) {
           List<DiffEntry> diffs= git.diff()
-                  .setNewTree(newTreeIter)
-                  .setOldTree(oldTreeIter)
+                  .setNewTree(newTreeIteration)
+                  .setOldTree(oldTreeIteration)
                   .call();
           for (DiffEntry entry : diffs) {
             System.out.println("Entry: " + entry);
