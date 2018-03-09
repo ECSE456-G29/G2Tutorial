@@ -1,5 +1,12 @@
 import backend.Core;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
+
 import parse.GreetParser;
 import parse.StepParser;
 
@@ -19,6 +26,7 @@ public class App {
       System.exit(1);
     }
 
+
     if (args[0].equals("greet")) {
       // Greet just exists as a template for parsing
       GreetParser p = new GreetParser(args);
@@ -27,6 +35,9 @@ public class App {
       // Initializes an empty git repo
       try {
         Core.initCore();
+        List<String> lines = Arrays.asList("= EMPTY ASCIIDOC");
+        Path file = Paths.get("tutorial.asciidoc");
+        Files.write(file, lines, Charset.forName("UTF-8"));
       } catch (IOException e) {
         System.err.println("Could not init g2t");
         e.printStackTrace();
