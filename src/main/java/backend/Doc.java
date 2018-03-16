@@ -7,7 +7,7 @@ import java.util.Set;
 
 public class Doc {
 
-  private final static String token = "WARNING:";
+  private static final String token = "WARNING:";
 
   /**
    * Parses the specified asciidoc step file and returns the set of files that are mentioned as
@@ -22,11 +22,11 @@ public class Doc {
       BufferedReader reader = new BufferedReader(new FileReader(fname));
       String line;
 
-      while((line = reader.readLine()) != null){
+      while ((line = reader.readLine()) != null) {
 
         String[] words = line.split("\\s");
 
-        if(words[0].equalsIgnoreCase(token)){
+        if (words[0].equalsIgnoreCase(token)) {
           changes.add(words[1]);
         }
       }
