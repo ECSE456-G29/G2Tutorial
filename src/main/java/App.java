@@ -1,4 +1,5 @@
 import backend.Core;
+import backend.Diff;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -15,6 +16,8 @@ public class App {
     return "Hello world.";
   }
 
+  static final String COMMANDS = "Available commands:\n\tgreet, init, step, diff";
+
   /**
    * Main entry point to G2Tutorial.
    *
@@ -22,7 +25,7 @@ public class App {
    */
   public static void main(String[] args) {
     if (args.length < 1) {
-      System.out.println("Available commands:\n\tgreet, init, step");
+      System.out.println(COMMANDS);
       System.exit(1);
     }
 
@@ -45,19 +48,29 @@ public class App {
       System.exit(0);
     } else if (args[0].equals("step")) {
       // Commits the current changes as a step and starts a new step
-      Core c = null;
-      try {
-        c = new Core();
-      } catch (IOException e) {
-        System.err.println("g2t is not initialized");
-        e.printStackTrace();
-      }
+      Core c = getCore();
       StepParser p = new StepParser(args, c);
       p.parse();
+    } else if (args[0].equals("diff")) {
+      Core c = getCore();
+      Diff d = c.diff();
+      System.out.println(d);
     } else {
-      System.out.println("Available commands:\n"
-          + "\tgreet, init, step");
+      System.out.println(COMMANDS);
       System.exit(1);
     }
+  }
+
+  static Core getCore() {
+    Core c = null;
+    try {
+      c = new Core();
+    } catch (IOException e) {
+      System.err.println("g2t is not initialized");
+      e.printStackTrace();
+      System.exit(1);
+    }
+
+    return c;
   }
 }

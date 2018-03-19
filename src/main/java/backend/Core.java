@@ -1,6 +1,8 @@
 package backend;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Core {
   private Repo repo;
@@ -70,5 +72,23 @@ public class Core {
     repo.commitAll(message);
     repo.tagCommit(Integer.toString(stepTag));
     return Integer.toString(stepTag);
+  }
+
+  /**
+   * For the current step, compares the set of files changed in the source code and the set files
+   * marked as changed in the ascii docs. The output is the the difference.
+   *
+   * @return Diff between two sets
+   */
+  public Diff diff() {
+    Set<String> diffFnames = new HashSet<>();
+
+    Set<String> deltaSource = new HashSet<>();
+
+    String step = currentStep();
+    String docFname = step + ".asciidoc";
+    Set<String> deltaDoc = Doc.filesChanged(docFname);
+
+    return new Diff(deltaSource, deltaDoc);
   }
 }
