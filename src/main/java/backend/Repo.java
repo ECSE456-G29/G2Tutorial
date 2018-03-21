@@ -16,7 +16,6 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
@@ -119,14 +118,14 @@ public class Repo {
   }
 
   /**
-   * public Set < String > diffSinceTag(String tagName) gets the set of filenames that were changed
-   * since the commit tagged with tagName. Input: tagName: get diff since this name. Output: -- set
-   * of filenames that have been changed since the tagged commit List of filenames that have been
-   * changed since the tagged commit - Can be printed or converted to string.
+   * public Set < DiffEntry > diffSinceTag(String tagName) gets the set of filenames that were
+   * changed since the commit tagged with tagName. Input: tagName: get diff since this name.
+   *
+   * @return set of filenames that have been changed since the tagged commit List of filenames that
+   *         have been changed since the tagged commit - Can be printed or converted to string.
    */
 
   public static List<DiffEntry> diffSinceTag(String tagName) throws IOException, GitAPIException {
-    // Set<String> fileNames = new HashSet<>();
     List<DiffEntry> fileNames;
 
     FileRepositoryBuilder builder = new FileRepositoryBuilder();
@@ -153,8 +152,6 @@ public class Repo {
 
     ObjectId head = repository.resolve("HEAD^{tree}");
 
-    System.out.println("Printing diff between tree: " + oldHead + " and " + head);
-
     // prepare the two iterators to compute the diff between
     try (ObjectReader reader = repository.newObjectReader()) {
       //For the oldTree
@@ -170,10 +167,6 @@ public class Repo {
             .setNewTree(newTreeIteration)
             .setOldTree(oldTreeIteration)
             .call();
-        for (DiffEntry entry : diffs) {
-          System.out.println("Entry: " + entry);
-
-        }
         fileNames = diffs;
       }
     }
@@ -195,57 +188,13 @@ public class Repo {
         .findGitDir() // scan up the file system tree
         .build();
 
-    System.out.println("Listing uncommitted changes:");
     Set<String> uncommittedChanges;
     try (Git git = new Git(repository)) {
 
       Status status = git.status().call();
       uncommittedChanges = status.getUncommittedChanges();
-      for (String uncommitted : uncommittedChanges) {
-        System.out.println("Uncommitted: " + uncommitted);
-      }
-
-      // Now we are printing all the other changes that happened in the repo
-      // however we are only returning the uncommited files set
-      // TODO : merge them all together 
-      Set<String> added = status.getAdded();
-      for (String add : added) {
-        System.out.println("Added: " + add);
-      }
-
-      Set<String> changed = status.getChanged();
-      for (String change : changed) {
-        System.out.println("Change: " + change);
-      }
-
-      Set<String> missing = status.getMissing();
-      for (String miss : missing) {
-        System.out.println("Missing: " + miss);
-      }
-
-      Set<String> modified = status.getModified();
-      for (String modify : modified) {
-        System.out.println("Modification: " + modify);
-      }
-
-      Set<String> removed = status.getRemoved();
-      for (String remove : removed) {
-        System.out.println("Removed: " + remove);
-      }
-
-      Set<String> untracked = status.getUntracked();
-      for (String untrack : untracked) {
-        System.out.println("Untracked: " + untrack);
-      }
-
-      Set<String> untrackedFolders = status.getUntrackedFolders();
-      for (String untrack : untrackedFolders) {
-        System.out.println("Untracked Folder: " + untrack);
-      }
     }
 
     return uncommittedChanges;
   }
-
-
 }
