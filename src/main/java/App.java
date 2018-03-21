@@ -53,8 +53,13 @@ public class App {
       p.parse();
     } else if (args[0].equals("diff")) {
       Core c = getCore();
-      Diff d = c.diff();
-      System.out.println(d);
+      try {
+        Diff d = c.diff();
+        System.out.println(d);
+      } catch (IOException e) {
+        e.printStackTrace();
+        System.exit(1);
+      }
     } else {
       System.out.println(COMMANDS);
       System.exit(1);

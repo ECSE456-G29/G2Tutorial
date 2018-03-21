@@ -23,12 +23,12 @@ public class Diff {
     StringBuilder sb = new StringBuilder();
     sb.append("Source not in Docs:\n");
     for (String ds : deltaSourceChanges) {
-      sb.append("\t" + ds);
+      sb.append(String.format("\t%s\n", ds));
     }
 
     sb.append("Docs not in Source:\n");
     for (String dd : deltaDocChanges) {
-      sb.append("\t" + dd);
+      sb.append(String.format("\t%s\n", dd));
     }
 
     return sb.toString();

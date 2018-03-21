@@ -14,7 +14,6 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
@@ -153,8 +152,6 @@ public class Repo {
 
     ObjectId head = repository.resolve("HEAD^{tree}");
 
-    System.out.println("Printing diff between tree: " + oldHead + " and " + head);
-
     // prepare the two iterators to compute the diff between
     try (ObjectReader reader = repository.newObjectReader()) {
       //For the oldTree
@@ -170,10 +167,6 @@ public class Repo {
             .setNewTree(newTreeIteration)
             .setOldTree(oldTreeIteration)
             .call();
-        for (DiffEntry entry : diffs) {
-          System.out.println("Entry: " + entry);
-
-        }
         fileNames = diffs;
       }
     }
