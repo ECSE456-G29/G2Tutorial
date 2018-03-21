@@ -100,6 +100,7 @@ public class Repo {
     Repository repo = FileRepositoryBuilder.create(new File(path, ".git"));
     repo.create();
     Git git = new Git(repo);
+
     return new Repo(git);
   }
 
