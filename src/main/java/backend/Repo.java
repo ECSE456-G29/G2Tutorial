@@ -119,14 +119,14 @@ public class Repo {
   }
 
   /**
-   * public Set < String > diffSinceTag(String tagName) gets the set of filenames that were changed
-   * since the commit tagged with tagName. Input: tagName: get diff since this name. Output: -- set
-   * of filenames that have been changed since the tagged commit List of filenames that have been
-   * changed since the tagged commit - Can be printed or converted to string.
+   * public Set < DiffEntry > diffSinceTag(String tagName) gets the set of filenames that were
+   * changed since the commit tagged with tagName. Input: tagName: get diff since this name.
+   *
+   * @return set of filenames that have been changed since the tagged commit List of filenames that
+   *         have been changed since the tagged commit - Can be printed or converted to string.
    */
 
   public static List<DiffEntry> diffSinceTag(String tagName) throws IOException, GitAPIException {
-    // Set<String> fileNames = new HashSet<>();
     List<DiffEntry> fileNames;
 
     FileRepositoryBuilder builder = new FileRepositoryBuilder();
@@ -189,12 +189,16 @@ public class Repo {
         .findGitDir() // scan up the file system tree
         .build();
 
+<<<<<<< HEAD
     System.out.println("Listing uncommitted changes:");
+=======
+>>>>>>> dev
     Set<String> uncommittedChanges;
     try (Git git = new Git(repository)) {
 
       Status status = git.status().call();
       uncommittedChanges = status.getUncommittedChanges();
+<<<<<<< HEAD
       for (String uncommitted : uncommittedChanges) {
         System.out.println("Uncommitted: " + uncommitted);
       }
@@ -236,10 +240,15 @@ public class Repo {
       for (String untrack : untrackedFolders) {
         System.out.println("Untracked Folder: " + untrack);
       }
+=======
+>>>>>>> dev
     }
 
     return uncommittedChanges;
   }
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> dev
 }
