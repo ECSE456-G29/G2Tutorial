@@ -1,5 +1,5 @@
 import backend.Core;
-import backend.Diff;
+import backend.diff.Diff;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;

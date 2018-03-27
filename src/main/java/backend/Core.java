@@ -1,11 +1,12 @@
 package backend;
 
+import backend.diff.Diff;
+import backend.diff.DiffEntry;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.diff.DiffEntry;
 
 public class Core {
   private Repo repo;
@@ -84,21 +85,21 @@ public class Core {
    * @return Diff between two sets
    */
   public Diff diff() throws IOException {
-    Set<String> deltaSource = new HashSet<String>();
+    Set<DiffEntry> deltaSource;
+    Set<DiffEntry> deltaDoc;
+
     try {
-      List<DiffEntry> diffEntries = repo.diffSinceTag("");
-      for (DiffEntry de : diffEntries) {
-        deltaSource.add(de.getNewPath());
-      }
+      deltaSource = repo.diffSinceTag("");
+      deltaSource.addAll(repo.uncommitedChanges());
     } catch (GitAPIException e) {
-      throw new RuntimeException("Could not connect to git", e);
+      throw new RuntimeException("Errors interfacing with git", e);
     } catch (IOException e) {
       throw new IOException("g2t not intialized", e);
     }
 
     String step = currentStep();
     String docFname = step + ".asciidoc";
-    Set<String> deltaDoc = Doc.filesChanged(docFname);
+    deltaDoc = Doc.filesChanged(docFname);
 
     return new Diff(deltaSource, deltaDoc);
   }

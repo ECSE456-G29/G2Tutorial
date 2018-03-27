@@ -1,7 +1,9 @@
 package backend;
 
+import backend.diff.DiffEntry.ChangeType;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -125,9 +127,9 @@ public class Repo {
    * @return set of filenames that have been changed since the tagged commit List of filenames that
    *         have been changed since the tagged commit - Can be printed or converted to string.
    */
-
-  public static List<DiffEntry> diffSinceTag(String tagName) throws IOException, GitAPIException {
-    List<DiffEntry> fileNames;
+  public static Set<backend.diff.DiffEntry> diffSinceTag(String tagName)
+      throws IOException, GitAPIException {
+    Set<backend.diff.DiffEntry> diffEntries = new HashSet<>();
 
     FileRepositoryBuilder builder = new FileRepositoryBuilder();
     Repository repository = builder.readEnvironment() // scan environment GIT_* variables
@@ -141,38 +143,57 @@ public class Repo {
 
     ObjectId oldHead;
 
-    if (tagName != "") { //if call the function with a specific tag, get the objectID
-
+    if (tagName != "") { // if call the function with a specific tag, get the objectID
       oldHead = RevTag.fromString(tagName);
-
-      // oldHead = repository.resolve("HEAD^^{tag}");
-
-    } else {  //if call function just to have latest commit changes
+    } else {  // otherwise call function just to have latest commit changes
       oldHead = repository.resolve("HEAD^^{tree}");
     }
 
     ObjectId head = repository.resolve("HEAD^{tree}");
 
-    // prepare the two iterators to compute the diff between
-    try (ObjectReader reader = repository.newObjectReader()) {
-      //For the oldTree
-      CanonicalTreeParser oldTreeIteration = new CanonicalTreeParser();
-      oldTreeIteration.reset(reader, oldHead);
-      //For the head Tree
-      CanonicalTreeParser newTreeIteration = new CanonicalTreeParser();
-      newTreeIteration.reset(reader, head);
+    // Prepare the two iterators to compute the diff between
+    ObjectReader reader = repository.newObjectReader();
 
-      // finally get the list of changed files
-      try (Git git = new Git(repository)) {
-        List<DiffEntry> diffs = git.diff()
-            .setNewTree(newTreeIteration)
-            .setOldTree(oldTreeIteration)
-            .call();
-        fileNames = diffs;
-      }
+    // For the oldTree
+    CanonicalTreeParser oldTreeIteration = new CanonicalTreeParser();
+    oldTreeIteration.reset(reader, oldHead);
+
+    // For the head Tree
+    CanonicalTreeParser newTreeIteration = new CanonicalTreeParser();
+    newTreeIteration.reset(reader, head);
+
+    // Get the list of changed files
+    Git git = new Git(repository);
+    List<DiffEntry> diffs = git.diff()
+        .setNewTree(newTreeIteration)
+        .setOldTree(oldTreeIteration)
+        .call();
+
+    // Convert to custom diff type
+    for (DiffEntry d : diffs) {
+      ChangeType changeType = convertChangeType(d.getChangeType());
+      backend.diff.DiffEntry diffEntry = new backend.diff.DiffEntry(d.getNewPath(), changeType);
+      diffEntries.add(diffEntry);
     }
 
-    return fileNames;
+    return diffEntries;
+  }
+
+  private static ChangeType convertChangeType(DiffEntry.ChangeType jgitChangeType) {
+    switch (jgitChangeType) {
+      case ADD:
+        return ChangeType.ADD;
+      case COPY:
+        return ChangeType.ADD;
+      case RENAME:
+        return ChangeType.ADD;
+      case MODIFY:
+        return ChangeType.MODIFY;
+      case DELETE:
+        return ChangeType.DELETE;
+      default:
+        throw new IllegalArgumentException("invalid jgit change type");
+    }
   }
 
   /**
@@ -181,20 +202,40 @@ public class Repo {
    * @return existing repo.
    * @throws IOException IO errors when unable to find existing repo
    */
-
-  public static Set<String> uncommitedChanges() throws IOException, GitAPIException {
+  public Set<backend.diff.DiffEntry> uncommitedChanges() throws IOException, GitAPIException {
 
     FileRepositoryBuilder builder = new FileRepositoryBuilder();
     Repository repository = builder.readEnvironment() // scan environment GIT_* variables
         .findGitDir() // scan up the file system tree
         .build();
 
-    Set<String> uncommittedChanges;
-    try (Git git = new Git(repository)) {
-      Status status = git.status().call();
-      uncommittedChanges = status.getUncommittedChanges();
+    Set<backend.diff.DiffEntry> changes = new HashSet<>();
+
+    Git git = new Git(repository);
+    Status status = git.status().call();
+
+    Set<backend.diff.DiffEntry> added = getChanges(status.getUntracked(), ChangeType.ADD);
+    changes.addAll(added);
+
+    Set<String> modifiedSet = new HashSet(status.getModified());
+    Set<String> uncommittedChanges = new HashSet(status.getUncommittedChanges());
+    modifiedSet.addAll(uncommittedChanges);
+    Set<backend.diff.DiffEntry> modified = getChanges(modifiedSet, ChangeType.MODIFY);
+    changes.addAll(modified);
+
+    Set<backend.diff.DiffEntry> deleted = getChanges(status.getMissing(), ChangeType.DELETE);
+    changes.addAll(deleted);
+
+    return changes;
+  }
+
+  private static Set<backend.diff.DiffEntry> getChanges(
+      Set<String> changes, ChangeType changeType) {
+    Set<backend.diff.DiffEntry> r = new HashSet<>();
+    for (String s : changes) {
+      r.add(new backend.diff.DiffEntry(s, changeType));
     }
 
-    return uncommittedChanges;
+    return r;
   }
 }
