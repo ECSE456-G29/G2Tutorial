@@ -3,8 +3,6 @@ package backend;
 import backend.diff.Diff;
 import backend.diff.DiffEntry;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
@@ -71,7 +69,7 @@ public class Core {
   public String addStep(String message) {
     int stepTag = Integer.parseInt(currentStep()) + 1;
     if (message == null) {
-      message = String.format("Step %s", stepTag);
+      message = String.format("End of step %s", stepTag);
     }
     repo.commitAll(message);
     repo.tagCommit(Integer.toString(stepTag));
@@ -88,8 +86,10 @@ public class Core {
     Set<DiffEntry> deltaSource;
     Set<DiffEntry> deltaDoc;
 
+    String step = currentStep();
+
     try {
-      deltaSource = repo.diffSinceTag("");
+      deltaSource = repo.diffSinceTag(step);
       deltaSource.addAll(repo.uncommitedChanges());
     } catch (GitAPIException e) {
       throw new RuntimeException("Errors interfacing with git", e);
@@ -97,7 +97,6 @@ public class Core {
       throw new IOException("g2t not intialized", e);
     }
 
-    String step = currentStep();
     String docFname = step + ".asciidoc";
     deltaDoc = Doc.filesChanged(docFname);
 
