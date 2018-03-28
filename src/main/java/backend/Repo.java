@@ -129,14 +129,11 @@ public class Repo {
    * @return set of filenames that have been changed since the tagged commit List of filenames that
    *         have been changed since the tagged commit - Can be printed or converted to string.
    */
-  public static Set<backend.diff.DiffEntry> diffSinceTag(String tagName)
+  public Set<backend.diff.DiffEntry> diffSinceTag(String tagName)
       throws IOException, GitAPIException {
     Set<backend.diff.DiffEntry> diffEntries = new HashSet<>();
 
-    FileRepositoryBuilder builder = new FileRepositoryBuilder();
-    Repository repository = builder.readEnvironment() // scan environment GIT_* variables
-        .findGitDir() // scan up the file system tree
-        .build();
+    Repository repository = git.getRepository();
 
     // The {tree} will return the underlying tree-id instead of the commit-id itself!
     // For a description of what the carets do see e.g. http://www.paulboxley.com/blog/2011/06/git-caret-and-tilde
@@ -168,7 +165,6 @@ public class Repo {
     newTreeIteration.reset(reader, head);
 
     // Get the list of changed files
-    Git git = new Git(repository);
     List<DiffEntry> diffs = git.diff()
         .setNewTree(newTreeIteration)
         .setOldTree(oldTreeIteration)
@@ -208,15 +204,7 @@ public class Repo {
    * @throws IOException IO errors when unable to find existing repo
    */
   public Set<backend.diff.DiffEntry> uncommitedChanges() throws IOException, GitAPIException {
-
-    FileRepositoryBuilder builder = new FileRepositoryBuilder();
-    Repository repository = builder.readEnvironment() // scan environment GIT_* variables
-        .findGitDir() // scan up the file system tree
-        .build();
-
     Set<backend.diff.DiffEntry> changes = new HashSet<>();
-
-    Git git = new Git(repository);
     Status status = git.status().call();
 
     Set<backend.diff.DiffEntry> added = getChanges(status.getUntracked(), ChangeType.ADD);
