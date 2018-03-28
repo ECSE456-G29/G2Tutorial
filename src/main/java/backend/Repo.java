@@ -14,10 +14,13 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTag;
+import org.eclipse.jgit.revwalk.RevTree;
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 
@@ -143,9 +146,11 @@ public class Repo {
 
     if (tagName != "") { //if call the function with a specific tag, get the objectID
 
-      oldHead = RevTag.fromString(tagName);
+      Ref tag = repository.getRef("/refs/tags/" + tagName); //get a reference to the tag
+      RevWalk walk = new RevWalk(repository);
+      RevTree tree = walk.parseTree(tag.getObjectId()); //convert the tag to a tree instance
 
-      // oldHead = repository.resolve("HEAD^^{tag}");
+      oldHead = tree.toObjectId(); //return the ObjectID of the tree 
 
     } else {  //if call function just to have latest commit changes
       oldHead = repository.resolve("HEAD^^{tree}");
@@ -207,7 +212,7 @@ public class Repo {
 
       // Now we are printing all the other changes that happened in the repo
       // however we are only returning the uncommited files set
-      // TODO : merge them all together 
+      // TODO : merge them all together
       Set<String> added = status.getAdded();
       for (String add : added) {
         System.out.println("Added: " + add);
