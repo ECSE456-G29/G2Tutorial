@@ -1,6 +1,10 @@
 package backend;
 
+import backend.diff.Diff;
+import backend.diff.DiffEntry;
 import java.io.IOException;
+import java.util.Set;
+import org.eclipse.jgit.api.errors.GitAPIException;
 
 public class Core {
   private Repo repo;
@@ -65,10 +69,37 @@ public class Core {
   public String addStep(String message) {
     int stepTag = Integer.parseInt(currentStep()) + 1;
     if (message == null) {
-      message = String.format("Step %s", stepTag);
+      message = String.format("End of step %s", stepTag);
     }
     repo.commitAll(message);
     repo.tagCommit(Integer.toString(stepTag));
     return Integer.toString(stepTag);
+  }
+
+  /**
+   * For the current step, compares the set of files changed in the source code and the set files
+   * marked as changed in the ascii docs. The output is the the difference.
+   *
+   * @return Diff between two sets
+   */
+  public Diff diff() throws IOException {
+    Set<DiffEntry> deltaSource;
+    Set<DiffEntry> deltaDoc;
+
+    String step = currentStep();
+
+    try {
+      deltaSource = repo.diffSinceTag(step);
+      deltaSource.addAll(repo.uncommitedChanges());
+    } catch (GitAPIException e) {
+      throw new RuntimeException("Errors interfacing with git", e);
+    } catch (IOException e) {
+      throw new IOException("g2t not intialized", e);
+    }
+
+    String docFname = step + ".asciidoc";
+    deltaDoc = Doc.filesChanged(docFname);
+
+    return new Diff(deltaSource, deltaDoc);
   }
 }
