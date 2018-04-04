@@ -1,16 +1,19 @@
 package backend;
 
+import static backend.Repo.getRepo;
+import static backend.Repo.getRepostory;
+
 import backend.diff.Diff;
 import backend.diff.DiffEntry;
 import java.io.IOException;
 import java.util.Set;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
-import static backend.Repo.getRepo;
-import static backend.Repo.getRepostory;
+
 
 
 public class Core {
+
   private Repo repo;
 
   /**
@@ -75,18 +78,28 @@ public class Core {
     if (message == null) {
       message = String.format("End of step %s", stepTag);
     }
-    repo.commitAll(message);
+
+    final String sha = repo.commitAll(message);
     repo.tagCommit(Integer.toString(stepTag));
+    repo.push();
 
     String url = "";
 
     try {
-      url = getRepostory().getConfig().getString( "remote", "origin", "url" );
+      url += getRepostory().getConfig().getString("remote", "origin", "url");
     } catch (IOException e) {
       e.printStackTrace();
     }
 
-    System.out.println(url);
+    url = url.replace(".git", "/archive/" +  sha + ".zip");
+
+
+    try {
+      Doc.addStep(url, stepTag);
+    } catch (IOException e) {
+      e.printStackTrace();
+      //TODO: handle this
+    }
 
     return Integer.toString(stepTag);
   }
