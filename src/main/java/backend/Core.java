@@ -65,7 +65,7 @@ public class Core {
   /**
    * Adds the current changes as a new step.
    *
-   * @return the step id just added
+   * @return the new current step id after step is added
    */
   public String addStep(String message) {
     int stepTag = Integer.parseInt(currentStep());
