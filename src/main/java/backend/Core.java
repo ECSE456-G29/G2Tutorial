@@ -56,9 +56,10 @@ public class Core {
   public String currentStep() {
     String t = repo.getLastTag();
     if (t == null) {
-      return "0";
+      return "1";
     }
-    return t;
+    int tmp = Integer.parseInt(t) + 1;
+    return Integer.toString(tmp);
   }
 
   /**
@@ -67,13 +68,13 @@ public class Core {
    * @return the step id just added
    */
   public String addStep(String message) {
-    int stepTag = Integer.parseInt(currentStep()) + 1;
+    int stepTag = Integer.parseInt(currentStep());
     if (message == null) {
       message = String.format("End of step %s", stepTag);
     }
     repo.commitAll(message);
     repo.tagCommit(Integer.toString(stepTag));
-    return Integer.toString(stepTag);
+    return Integer.toString(stepTag + 1);
   }
 
   /**
@@ -86,7 +87,8 @@ public class Core {
     Set<DiffEntry> deltaSource;
     Set<DiffEntry> deltaDoc;
 
-    String step = currentStep();
+    int tmp = Integer.parseInt(currentStep()) - 1;
+    String step = Integer.toString(tmp);
 
     try {
       deltaSource = repo.diffSinceTag(step);
