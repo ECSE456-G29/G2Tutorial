@@ -1,5 +1,7 @@
 package backend;
 
+import backend.diff.DiffEntry;
+import backend.diff.DiffEntry.ChangeType;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.HashSet;
@@ -18,8 +20,8 @@ public class Doc {
    * @param fname name of step asciidoc
    * @return set of filenames that are mentioned as changed in the asciidoc step file
    */
-  public static Set<String> filesChanged(String fname) {
-    Set<String> changes = new HashSet<String>();
+  public static Set<DiffEntry> filesChanged(String fname) {
+    Set<DiffEntry> changes = new HashSet<>();
     Pattern p = Pattern.compile(token);
     try {
       BufferedReader reader = new BufferedReader(new FileReader(fname));
@@ -30,7 +32,8 @@ public class Doc {
         Matcher m = Pattern.compile(token)
                 .matcher(line);
         while (m.find()) {
-          changes.add(m.group());
+          DiffEntry diffEntry = new DiffEntry(m.group(), ChangeType.ADD);
+          changes.add(diffEntry);
         }
 
       }
