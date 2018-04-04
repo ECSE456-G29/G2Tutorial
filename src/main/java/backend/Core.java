@@ -2,6 +2,10 @@ package backend;
 
 import java.io.IOException;
 
+import static backend.Repo.getRepo;
+import static backend.Repo.getRepostory;
+
+
 public class Core {
   private Repo repo;
 
@@ -18,7 +22,7 @@ public class Core {
    * Constructor for the backend core which fetches an existing repo.
    */
   public Core() throws IOException {
-    this.repo = Repo.getRepo();
+    this.repo = getRepo();
   }
 
   /**
@@ -69,6 +73,17 @@ public class Core {
     }
     repo.commitAll(message);
     repo.tagCommit(Integer.toString(stepTag));
+
+    String url = "";
+
+    try {
+      url = getRepostory().getConfig().getString( "remote", "origin", "url" );
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    System.out.println(url);
+
     return Integer.toString(stepTag);
   }
 }

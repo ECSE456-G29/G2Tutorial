@@ -36,7 +36,7 @@ public class App {
       try {
         Core.initCore();
         List<String> lines = Arrays.asList("= EMPTY ASCIIDOC");
-        Path file = Paths.get("tutorial.asciidoc");
+        Path file = Paths.get("tutorial.adoc");
         Files.write(file, lines, Charset.forName("UTF-8"));
       } catch (IOException e) {
         System.err.println("Could not init g2t");

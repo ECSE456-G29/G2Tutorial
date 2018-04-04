@@ -24,6 +24,7 @@ public class Repo {
 
   private Git git;
 
+
   public Repo(Git git) {
     this.git = git;
   }
@@ -118,6 +119,14 @@ public class Repo {
     return new Repo(git);
   }
 
+  public static Repository getRepostory() throws IOException {
+    Repository repo;
+    FileRepositoryBuilder repositoryBuilder = new FileRepositoryBuilder();
+    repo = repositoryBuilder.findGitDir().build();
+
+    return repo;
+  }
+
   /**
    * public Set < DiffEntry > diffSinceTag(String tagName) gets the set of filenames that were
    * changed since the commit tagged with tagName. Input: tagName: get diff since this name.
@@ -198,4 +207,6 @@ public class Repo {
 
     return uncommittedChanges;
   }
+
+
 }
