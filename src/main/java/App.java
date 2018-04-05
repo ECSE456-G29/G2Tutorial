@@ -39,7 +39,7 @@ public class App {
       // Initializes an empty git repo
       try {
         Core.initCore();
-        Doc.createDoc();
+        Doc.createDoc(1);
       } catch (IOException e) {
         System.err.println("Could not init g2t");
         e.printStackTrace();

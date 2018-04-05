@@ -25,9 +25,9 @@ public class Doc {
    * Creates a new tutorial.asdoc file.
    * @throws IOException if it fails to create and write to a new file
    */
-  public static void createDoc() throws IOException {
-    List<String> lines = Arrays.asList("= EMPTY ASCIIDOC");
-    Path file = Paths.get("tutorial.adoc");
+  public static void createDoc(int step) throws IOException {
+    List<String> lines = Arrays.asList("= Tutorial");
+    Path file = Paths.get(step + ".adoc");
     Files.write(file, lines, Charset.forName("UTF-8"));
   }
 
@@ -41,8 +41,9 @@ public class Doc {
 
     String asciidoc = "\n\n== Step " + stepTag + "\n\n" + checkout + "\n";
 
+    Files.write(Paths.get(stepTag + ".adoc"), asciidoc.getBytes(), StandardOpenOption.APPEND);
 
-    Files.write(Paths.get("tutorial.adoc"), asciidoc.getBytes(), StandardOpenOption.APPEND);
+    createDoc(stepTag + 1);
   }
 
 
