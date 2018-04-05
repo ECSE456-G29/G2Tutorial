@@ -1,12 +1,19 @@
 package backend;
 
+import static backend.Repo.getRepo;
+import static backend.Repo.getRepostory;
+
 import backend.diff.Diff;
 import backend.diff.DiffEntry;
 import java.io.IOException;
 import java.util.Set;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
+
+
+
 public class Core {
+
   private Repo repo;
 
   /**
@@ -22,7 +29,7 @@ public class Core {
    * Constructor for the backend core which fetches an existing repo.
    */
   public Core() throws IOException {
-    this.repo = Repo.getRepo();
+    this.repo = getRepo();
   }
 
   /**
@@ -72,9 +79,30 @@ public class Core {
     if (message == null) {
       message = String.format("End of step %s", stepTag);
     }
-    repo.commitAll(message);
+
+    final String sha = repo.commitAll(message);
     repo.tagCommit(Integer.toString(stepTag));
-    return Integer.toString(stepTag + 1);
+    repo.push();
+
+    String url = "";
+
+    try {
+      url += getRepostory().getConfig().getString("remote", "origin", "url");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    url = url.replace(".git", "/archive/" +  sha + ".zip");
+
+
+    try {
+      Doc.addStep(url, stepTag);
+    } catch (IOException e) {
+      e.printStackTrace();
+      //TODO: handle this
+    }
+
+    return Integer.toString(stepTag);
   }
 
   /**
@@ -99,7 +127,7 @@ public class Core {
     }
 
     String currentStepTag = currentStep();
-    String docFname = currentStepTag + ".asciidoc";
+    String docFname = currentStepTag + ".adoc";
     deltaDoc = Doc.filesChanged(docFname);
 
     return new Diff(deltaSource, deltaDoc);

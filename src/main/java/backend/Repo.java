@@ -1,13 +1,21 @@
 package backend;
 
 import backend.diff.DiffEntry.ChangeType;
+
+import java.io.Console;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
+
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.PushCommand;
+import org.eclipse.jgit.api.RemoteAddCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoFilepatternException;
@@ -22,11 +30,15 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.transport.PushResult;
+import org.eclipse.jgit.transport.URIish;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 
 public class Repo {
 
   private Git git;
+
 
   public Repo(Git git) {
     this.git = git;
@@ -53,6 +65,41 @@ public class Repo {
       throw new RuntimeException(e);
     }
     return commit.getId().name();
+  }
+
+  /**
+   * Pushes the branch.
+   *
+   * @return Iterable containing info on the push
+   */
+  public Iterable<PushResult> push() {
+    // push to remote:
+    PushCommand pushCommand = git.push();
+    Scanner scanner = new Scanner(System.in);
+    System.out.println("GitHub Username: ");
+    String username = scanner.next();
+
+    Console console = System.console();
+    String password =
+            new String(console.readPassword("Please enter your GitHub password: "));
+
+    pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password));
+    // you can add more settings here if needed
+
+    Iterable<PushResult> pushResults = new Iterable<PushResult>() {
+      @Override
+      public Iterator<PushResult> iterator() {
+        return null;
+      }
+    };
+
+    try {
+      pushResults = pushCommand.call();
+    } catch (GitAPIException e) {
+      //todo handle this exception
+      e.printStackTrace();
+    }
+    return pushResults;
   }
 
   /**
@@ -105,6 +152,24 @@ public class Repo {
     repo.create();
     Git git = new Git(repo);
 
+    //todo implement some sort of catch for an incorrect URL
+    Scanner scanner = new Scanner(System.in);
+    System.out.print("Please enter https url of remote github repository: ");
+    String url = scanner.next();
+
+    RemoteAddCommand remoteAddCommand = git.remoteAdd();
+    remoteAddCommand.setName("origin");
+    try {
+      remoteAddCommand.setUri(new URIish(url));
+    } catch (URISyntaxException e) {
+      e.printStackTrace();
+    }
+    try {
+      remoteAddCommand.call();
+    } catch (GitAPIException e) {
+      e.printStackTrace();
+    }
+
     return new Repo(git);
   }
 
@@ -120,6 +185,20 @@ public class Repo {
     repo = repositoryBuilder.findGitDir().build();
     Git git = new Git(repo);
     return new Repo(git);
+  }
+
+  /**
+   * Fetches an existing repository.
+   *
+   * @return existing repository.
+   * @throws IOException IO errors when unable to find existing repo
+   */
+  public static Repository getRepostory() throws IOException {
+    Repository repo;
+    FileRepositoryBuilder repositoryBuilder = new FileRepositoryBuilder();
+    repo = repositoryBuilder.findGitDir().build();
+
+    return repo;
   }
 
   /**

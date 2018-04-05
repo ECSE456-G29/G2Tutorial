@@ -1,4 +1,5 @@
 import backend.Core;
+import backend.Doc;
 import backend.diff.Diff;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -38,9 +39,7 @@ public class App {
       // Initializes an empty git repo
       try {
         Core.initCore();
-        List<String> lines = Arrays.asList("= EMPTY ASCIIDOC");
-        Path file = Paths.get("tutorial.asciidoc");
-        Files.write(file, lines, Charset.forName("UTF-8"));
+        Doc.createDoc(1);
       } catch (IOException e) {
         System.err.println("Could not init g2t");
         e.printStackTrace();
