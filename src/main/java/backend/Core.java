@@ -87,11 +87,10 @@ public class Core {
     Set<DiffEntry> deltaSource;
     Set<DiffEntry> deltaDoc;
 
-    int tmp = Integer.parseInt(currentStep()) - 1;
-    String step = Integer.toString(tmp);
+    String lastStepTag = repo.getLastTag();
 
     try {
-      deltaSource = repo.diffSinceTag(step);
+      deltaSource = repo.diffSinceTag(lastStepTag);
       deltaSource.addAll(repo.uncommitedChanges());
     } catch (GitAPIException e) {
       throw new RuntimeException("Errors interfacing with git", e);
@@ -99,7 +98,8 @@ public class Core {
       throw new IOException("g2t not intialized", e);
     }
 
-    String docFname = step + ".asciidoc";
+    String currentStepTag = currentStep();
+    String docFname = currentStepTag + ".asciidoc";
     deltaDoc = Doc.filesChanged(docFname);
 
     return new Diff(deltaSource, deltaDoc);
