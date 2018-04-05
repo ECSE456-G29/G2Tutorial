@@ -63,18 +63,19 @@ public class Core {
   public String currentStep() {
     String t = repo.getLastTag();
     if (t == null) {
-      return "0";
+      return "1";
     }
-    return t;
+    int tmp = Integer.parseInt(t) + 1;
+    return Integer.toString(tmp);
   }
 
   /**
    * Adds the current changes as a new step.
    *
-   * @return the step id just added
+   * @return the new current step id after step is added
    */
   public String addStep(String message) {
-    int stepTag = Integer.parseInt(currentStep()) + 1;
+    int stepTag = Integer.parseInt(currentStep());
     if (message == null) {
       message = String.format("End of step %s", stepTag);
     }
@@ -114,10 +115,10 @@ public class Core {
     Set<DiffEntry> deltaSource;
     Set<DiffEntry> deltaDoc;
 
-    String step = currentStep();
+    String lastStepTag = repo.getLastTag();
 
     try {
-      deltaSource = repo.diffSinceTag(step);
+      deltaSource = repo.diffSinceTag(lastStepTag);
       deltaSource.addAll(repo.uncommitedChanges());
     } catch (GitAPIException e) {
       throw new RuntimeException("Errors interfacing with git", e);
@@ -125,7 +126,8 @@ public class Core {
       throw new IOException("g2t not intialized", e);
     }
 
-    String docFname = step + ".asciidoc";
+    String currentStepTag = currentStep();
+    String docFname = currentStepTag + ".adoc";
     deltaDoc = Doc.filesChanged(docFname);
 
     return new Diff(deltaSource, deltaDoc);

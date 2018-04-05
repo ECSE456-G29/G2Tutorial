@@ -221,7 +221,7 @@ public class Repo {
 
     ObjectId oldHead;
 
-    if (tagName != "") { // if call the function with a specific tag, get the objectID
+    if (tagName != null) { // if call the function with a specific tag, get the objectID
       Ref tag = repository.exactRef("/refs/tags/" + tagName); //get a reference to the tag
       RevWalk walk = new RevWalk(repository);
       RevTree tree = walk.parseTree(tag.getObjectId()); //convert the tag to a tree instance
@@ -230,6 +230,9 @@ public class Repo {
 
     } else {  // otherwise just to have latest commit changes
       oldHead = repository.resolve("HEAD^^{tree}");
+      if (oldHead == null) {
+        return new HashSet<backend.diff.DiffEntry>();
+      }
     }
 
     ObjectId head = repository.resolve("HEAD^{tree}");
@@ -311,5 +314,13 @@ public class Repo {
     return r;
   }
 
-
+  /**
+   * Gets the root path of the repo.
+   *
+   * @return root path of the repo as a string
+   */
+  public File getRepoPath() {
+    Repository repo = git.getRepository();
+    return repo.getDirectory().getParentFile();
+  }
 }
