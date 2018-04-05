@@ -101,8 +101,8 @@ public class Core {
       e.printStackTrace();
       //TODO: handle this
     }
-
-    return Integer.toString(stepTag);
+    int returnStepTag = stepTag + 1;
+    return Integer.toString(returnStepTag);
   }
 
   /**
